@@ -1,0 +1,151 @@
+<div class="col-md-6 col-lg-4" id="machine-{{ machine.id }}">
+    <div class="card machine-card h-100 {{ 'running' if is_running else 'stopped' }}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="card-title mb-0">{{ machine.name }}</h5>
+                <small class="text-muted">ID: {{ machine.id }}</small>
+            </div>
+            <span class="badge protocol-badge {{ 'bg-info' if machine.protocol.value == 'opc_ua' else 'bg-warning text-dark' }}">
+                {{ 'OPC UA' if machine.protocol.value == 'opc_ua' else 'Modbus' }}
+            </span>
+        </div>
+        <div class="card-body">
+            {% if machine.description %}
+                <p class="card-text text-muted small">{{ machine.description }}</p>
+            {% endif %}
+            
+            <div class="mb-3">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-hdd-network me-2 text-primary"></i>
+                    <span class="small">
+                        {% if machine.protocol.value == 'opc_ua' %}
+                            opc.tcp://{{ machine.host }}:{{ machine.port }}
+                        {% else %}
+                            {{ machine.host }}:{{ machine.port }}
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-clock me-2 text-muted"></i>
+                    <span class="small text-muted">
+                        Vytvořeno: {{ machine.created_at.strftime('%d.%m.%Y %H:%M') }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Status -->
+            <div class="d-flex align-items-center mb-3" id="status-{{ machine.id }}">
+                {% include "partials/status_badge.html" %}
+                {% if not machine.is_enabled %}
+                    <span class="badge bg-warning text-dark ms-2 status-badge">Neaktivní</span>
+                {% endif %}
+            </div>
+            
+            <!-- Senzory -->
+            <div class="mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted">
+                        <i class="bi bi-thermometer me-1"></i>
+                        {{ machine.sensors|length if machine.sensors else 0 }} senzorů
+                    </small>
+                    <button 
+                        type="button" 
+                        class="btn btn-sm btn-outline-primary"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#sensorModal"
+                        hx-get="/sensors/form/{{ machine.id }}"
+                        hx-target="#sensorModalContent"
+                        hx-swap="innerHTML"
+                    >
+                        <i class="bi bi-plus"></i> Senzor
+                    </button>
+                </div>
+                
+                {% if machine.sensors %}
+                <div class="sensor-list small" style="max-height: 150px; overflow-y: auto;">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tbody id="sensors-list-{{ machine.id }}">
+                            {% for sensor in machine.sensors %}
+                            <tr id="sensor-{{ sensor.id }}">
+                                <td>
+                                    <i class="bi bi-activity text-success me-1"></i>
+                                    {{ sensor.name }}
+                                    {% if sensor.unit %}<small class="text-muted">({{ sensor.unit }})</small>{% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-light text-dark">{{ sensor.min_value }}-{{ sensor.max_value }}</span>
+                                </td>
+                                <td class="text-end" style="width: 30px;">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-link btn-sm text-danger p-0"
+                                        hx-delete="/sensors/{{ sensor.id }}"
+                                        hx-target="#sensor-{{ sensor.id }}"
+                                        hx-swap="outerHTML"
+                                        hx-confirm="Smazat senzor?"
+                                    >
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-footer bg-transparent">
+            <div class="btn-group w-100" role="group">
+                {% if is_running %}
+                    <button 
+                        type="button" 
+                        class="btn btn-sm btn-danger"
+                        hx-post="/simulation/{{ machine.id }}/stop"
+                        hx-target="#machine-{{ machine.id }}"
+                        hx-swap="outerHTML"
+                        title="Zastavit"
+                    >
+                        <i class="bi bi-stop-fill"></i> Stop
+                    </button>
+                {% else %}
+                    <button 
+                        type="button" 
+                        class="btn btn-sm btn-success"
+                        hx-post="/simulation/{{ machine.id }}/start"
+                        hx-target="#machine-{{ machine.id }}"
+                        hx-swap="outerHTML"
+                        title="Spustit"
+                        {% if not machine.is_enabled %}disabled{% endif %}
+                    >
+                        <i class="bi bi-play-fill"></i> Start
+                    </button>
+                {% endif %}
+                <button 
+                    type="button" 
+                    class="btn btn-sm btn-outline-primary"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#machineModal"
+                    hx-get="/machines/form?machine_id={{ machine.id }}"
+                    hx-target="#machineModalContent"
+                    hx-swap="innerHTML"
+                    title="Upravit"
+                >
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button 
+                    type="button" 
+                    class="btn btn-sm btn-outline-danger"
+                    hx-delete="/machines/{{ machine.id }}"
+                    hx-target="#machine-{{ machine.id }}"
+                    hx-swap="outerHTML"
+                    hx-confirm="Opravdu chcete smazat stroj '{{ machine.name }}'?"
+                    title="Smazat"
+                    {% if is_running %}disabled{% endif %}
+                >
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

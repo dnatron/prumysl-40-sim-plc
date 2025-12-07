@@ -1,0 +1,21 @@
+<div class="table-responsive">
+    <table class="table table-sm table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Název</th>
+                <th>Typ</th>
+                <th>Simulace</th>
+                <th class="text-center">Rozsah</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="sensors-list-{{ machine.id }}">
+            {% for sensor in sensors %}
+                {% include "partials/sensor_row.html" %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if not sensors %}
+    <p class="text-muted text-center small mb-0 mt-2">Zatím žádné senzory</p>
+{% endif %}

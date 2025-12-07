@@ -1,0 +1,136 @@
+<div class="modal-header">
+    <h5 class="modal-title" id="machineModalLabel">
+        <i class="bi bi-{{ 'pencil' if machine else 'plus-lg' }} me-2"></i>
+        {{ 'Upravit stroj' if machine else 'Nový stroj' }}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zavřít"></button>
+</div>
+<form 
+    {% if machine %}
+        hx-put="/machines/{{ machine.id }}"
+    {% else %}
+        hx-post="/machines/create"
+    {% endif %}
+    hx-target="#machines-container"
+    hx-swap="beforeend"
+    hx-on::after-request="if(event.detail.successful) bootstrap.Modal.getInstance(document.getElementById('machineModal')).hide()"
+>
+    <div class="modal-body">
+        <div class="row g-3">
+            <!-- Název -->
+            <div class="col-md-6">
+                <label for="name" class="form-label">Název stroje *</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="name" 
+                    name="name" 
+                    value="{{ machine.name if machine else '' }}"
+                    placeholder="např. Lis-01"
+                    required
+                >
+            </div>
+            
+            <!-- Protokol -->
+            <div class="col-md-6">
+                <label for="protocol" class="form-label">Protokol *</label>
+                <select 
+                    class="form-select" 
+                    id="protocol" 
+                    name="protocol"
+                    onchange="updateDefaultPort(this.value)"
+                    required
+                >
+                    <option value="opc_ua" {{ 'selected' if not machine or machine.protocol.value == 'opc_ua' else '' }}>
+                        OPC UA
+                    </option>
+                    <option value="modbus" {{ 'selected' if machine and machine.protocol.value == 'modbus' else '' }}>
+                        Modbus TCP
+                    </option>
+                </select>
+            </div>
+            
+            <!-- Popis -->
+            <div class="col-12">
+                <label for="description" class="form-label">Popis</label>
+                <textarea 
+                    class="form-control" 
+                    id="description" 
+                    name="description" 
+                    rows="2"
+                    placeholder="Volitelný popis stroje..."
+                >{{ machine.description if machine and machine.description else '' }}</textarea>
+            </div>
+            
+            <!-- Host -->
+            <div class="col-md-6">
+                <label for="host" class="form-label">IP Adresa</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="host" 
+                    name="host" 
+                    value="{{ machine.host if machine else '127.0.0.1' }}"
+                    placeholder="127.0.0.1"
+                >
+            </div>
+            
+            <!-- Port -->
+            <div class="col-md-6">
+                <label for="port" class="form-label">Port</label>
+                <input 
+                    type="number" 
+                    class="form-control" 
+                    id="port" 
+                    name="port" 
+                    value="{{ machine.port if machine else default_opc_port }}"
+                    min="1"
+                    max="65535"
+                >
+                <div class="form-text" id="portHelp">
+                    Výchozí: OPC UA = {{ default_opc_port }}, Modbus = {{ default_modbus_port }}
+                </div>
+            </div>
+            
+            <!-- Aktivní -->
+            <div class="col-12">
+                <div class="form-check form-switch">
+                    <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        id="is_enabled" 
+                        name="is_enabled"
+                        value="true"
+                        {{ 'checked' if not machine or machine.is_enabled else '' }}
+                    >
+                    <label class="form-check-label" for="is_enabled">
+                        Stroj je aktivní pro simulaci
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg me-1"></i>Zrušit
+        </button>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>
+            {{ 'Uložit změny' if machine else 'Vytvořit stroj' }}
+        </button>
+    </div>
+</form>
+
+<script>
+function updateDefaultPort(protocol) {
+    const portInput = document.getElementById('port');
+    const currentPort = parseInt(portInput.value);
+    
+    // Změnit port pouze pokud je na výchozí hodnotě
+    if (protocol === 'opc_ua' && (currentPort === {{ default_modbus_port }} || !currentPort)) {
+        portInput.value = {{ default_opc_port }};
+    } else if (protocol === 'modbus' && (currentPort === {{ default_opc_port }} || !currentPort)) {
+        portInput.value = {{ default_modbus_port }};
+    }
+}
+</script>

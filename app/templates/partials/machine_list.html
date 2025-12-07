@@ -1,0 +1,15 @@
+{% if machines %}
+    {% for machine in machines %}
+        {% include "partials/machine_card.html" %}
+    {% endfor %}
+{% else %}
+    <div class="col-12">
+        <div class="card border-dashed">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <h5 class="mt-3">Zatím žádné stroje</h5>
+                <p class="text-muted">Klikněte na "Přidat stroj" pro vytvoření prvního stroje</p>
+            </div>
+        </div>
+    </div>
+{% endif %}

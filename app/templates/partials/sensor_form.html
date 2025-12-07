@@ -1,0 +1,111 @@
+<div class="modal-header">
+    <h5 class="modal-title">
+        <i class="bi bi-thermometer me-2"></i>
+        {{ 'Upravit senzor' if sensor else 'Nový senzor' }} - {{ machine.name }}
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+<form 
+    hx-post="/sensors/create/{{ machine.id }}"
+    hx-target="#sensors-list-{{ machine.id }}"
+    hx-swap="beforeend"
+    hx-on::after-request="if(event.detail.successful) bootstrap.Modal.getInstance(document.getElementById('sensorModal')).hide()"
+>
+    <div class="modal-body">
+        <div class="row g-3">
+            <!-- Název -->
+            <div class="col-md-6">
+                <label for="sensor_name" class="form-label">Název senzoru *</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="sensor_name" 
+                    name="name" 
+                    value="{{ sensor.name if sensor else '' }}"
+                    placeholder="např. Teplota motoru"
+                    required
+                >
+            </div>
+            
+            <!-- Jednotka -->
+            <div class="col-md-6">
+                <label for="unit" class="form-label">Jednotka</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="unit" 
+                    name="unit" 
+                    value="{{ sensor.unit if sensor and sensor.unit else '' }}"
+                    placeholder="např. °C, bar, %"
+                >
+            </div>
+            
+            <!-- Datový typ -->
+            <div class="col-md-6">
+                <label for="data_type" class="form-label">Datový typ</label>
+                <select class="form-select" id="data_type" name="data_type">
+                    <option value="float" {{ 'selected' if not sensor or sensor.data_type.value == 'float' else '' }}>Float (desetinné)</option>
+                    <option value="int" {{ 'selected' if sensor and sensor.data_type.value == 'int' else '' }}>Integer (celé číslo)</option>
+                    <option value="bool" {{ 'selected' if sensor and sensor.data_type.value == 'bool' else '' }}>Boolean (ano/ne)</option>
+                </select>
+            </div>
+            
+            <!-- Typ simulace -->
+            <div class="col-md-6">
+                <label for="simulation_type" class="form-label">Typ simulace</label>
+                <select class="form-select" id="simulation_type" name="simulation_type">
+                    <option value="random" {{ 'selected' if not sensor or sensor.simulation_type.value == 'random' else '' }}>Náhodná</option>
+                    <option value="sine" {{ 'selected' if sensor and sensor.simulation_type.value == 'sine' else '' }}>Sinusová</option>
+                    <option value="step" {{ 'selected' if sensor and sensor.simulation_type.value == 'step' else '' }}>Skoková</option>
+                    <option value="ramp" {{ 'selected' if sensor and sensor.simulation_type.value == 'ramp' else '' }}>Lineární (rampa)</option>
+                    <option value="constant" {{ 'selected' if sensor and sensor.simulation_type.value == 'constant' else '' }}>Konstantní</option>
+                </select>
+            </div>
+            
+            <!-- Počáteční hodnota -->
+            <div class="col-md-4">
+                <label for="initial_value" class="form-label">Počáteční hodnota</label>
+                <input 
+                    type="number" 
+                    step="0.01"
+                    class="form-control" 
+                    id="initial_value" 
+                    name="initial_value" 
+                    value="{{ sensor.initial_value if sensor else 0 }}"
+                >
+            </div>
+            
+            <!-- Min hodnota -->
+            <div class="col-md-4">
+                <label for="min_value" class="form-label">Min hodnota</label>
+                <input 
+                    type="number" 
+                    step="0.01"
+                    class="form-control" 
+                    id="min_value" 
+                    name="min_value" 
+                    value="{{ sensor.min_value if sensor else 0 }}"
+                >
+            </div>
+            
+            <!-- Max hodnota -->
+            <div class="col-md-4">
+                <label for="max_value" class="form-label">Max hodnota</label>
+                <input 
+                    type="number" 
+                    step="0.01"
+                    class="form-control" 
+                    id="max_value" 
+                    name="max_value" 
+                    value="{{ sensor.max_value if sensor else 100 }}"
+                >
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zrušit</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>Přidat senzor
+        </button>
+    </div>
+</form>

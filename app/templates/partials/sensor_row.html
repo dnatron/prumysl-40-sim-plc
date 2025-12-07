@@ -1,0 +1,27 @@
+<tr id="sensor-{{ sensor.id }}">
+    <td>
+        <strong>{{ sensor.name }}</strong>
+        {% if sensor.unit %}
+            <small class="text-muted">({{ sensor.unit }})</small>
+        {% endif %}
+    </td>
+    <td>
+        <span class="badge bg-secondary">{{ sensor.data_type.value }}</span>
+    </td>
+    <td>
+        <span class="badge bg-info">{{ sensor.simulation_type.value }}</span>
+    </td>
+    <td class="text-center">{{ sensor.min_value }} - {{ sensor.max_value }}</td>
+    <td class="text-end">
+        <button 
+            type="button" 
+            class="btn btn-sm btn-outline-danger"
+            hx-delete="/sensors/{{ sensor.id }}"
+            hx-target="#sensor-{{ sensor.id }}"
+            hx-swap="outerHTML"
+            hx-confirm="Smazat senzor '{{ sensor.name }}'?"
+        >
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>

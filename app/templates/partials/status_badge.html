@@ -1,0 +1,21 @@
+{% if status == 'running' or is_running %}
+    <span class="badge status-badge bg-success">
+        <i class="bi bi-play-circle-fill me-1"></i>Běží
+    </span>
+{% elif status == 'starting' %}
+    <span class="badge status-badge bg-info">
+        <i class="bi bi-hourglass-split me-1"></i>Spouštím...
+    </span>
+{% elif status == 'stopping' %}
+    <span class="badge status-badge bg-warning text-dark">
+        <i class="bi bi-hourglass-split me-1"></i>Zastavuji...
+    </span>
+{% elif status == 'error' %}
+    <span class="badge status-badge bg-danger" title="{{ error_message or 'Neznámá chyba' }}">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>Chyba
+    </span>
+{% else %}
+    <span class="badge status-badge bg-secondary">
+        <i class="bi bi-stop-circle me-1"></i>Zastaveno
+    </span>
+{% endif %}

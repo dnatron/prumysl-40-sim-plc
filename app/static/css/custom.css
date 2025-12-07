@@ -1,0 +1,28 @@
+/* 
+ * PLC Simulátor - vlastní styly
+ * Většina stylů je v base.html, zde jsou pouze rozšíření
+ */
+
+/* Animace pro karty */
+.machine-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.machine-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Prázdný stav */
+.border-dashed {
+    border-style: dashed !important;
+    border-color: #dee2e6 !important;
+}
+
+/* Loading spinner */
+.htmx-request .loading-spinner {
+    display: inline-block;
+}
+
+.loading-spinner {
+    display: none;
+}
