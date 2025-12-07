@@ -4,11 +4,11 @@ Webový simulátor průmyslových PLC strojů s podporou protokolů **OPC UA** a
 
 ## Ukázky aplikace
 
-![Dashboard - přehled strojů](img/app1.png)
+![Dashboard - přehled strojů](img/app01.png)
 
-![Přidání nového senzoru](img/app2.png)
+![Přidání nového senzoru](img/app02.png)
 
-![Konfigurace stroje](img/app3.png)
+![Konfigurace stroje](img/app03.png)
 
 ## Technologie
 
