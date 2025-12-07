@@ -46,9 +46,11 @@ async def test_opc_server(url: str = "opc.tcp://127.0.0.1:4840"):
                         sensors = await machine.get_children()
                         for sensor in sensors:
                             sensor_name = await sensor.read_browse_name()
+                            node_id = sensor.nodeid
                             try:
                                 value = await sensor.read_value()
                                 print(f"    📈 {sensor_name}: {value}")
+                                print(f"       NodeId: {node_id}")
                             except:
                                 print(f"    📁 {sensor_name} (složka)")
         except Exception as e:
