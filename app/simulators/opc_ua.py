@@ -25,6 +25,7 @@ class OpcUaSimulator(BaseSimulator):
         super().__init__(machine, sensors)
         self._server: Optional[Server] = None
         self._nodes: Dict[int, object] = {}  # sensor_id -> UA node
+        self._ua_types: Dict[int, ua.VariantType] = {}  # sensor_id -> UA type
     
     async def _start_server(self) -> None:
         """Spustí OPC UA server"""
@@ -72,6 +73,7 @@ class OpcUaSimulator(BaseSimulator):
             await node.set_writable()
             
             self._nodes[sensor_id] = node
+            self._ua_types[sensor_id] = ua_type
             
             logger.debug(f"OPC UA: Přidán senzor {sensor.name} ({sensor.data_type.value})")
         
@@ -86,6 +88,7 @@ class OpcUaSimulator(BaseSimulator):
             await self._server.stop()
             self._server = None
             self._nodes.clear()
+            self._ua_types.clear()
             logger.info("OPC UA server zastaven")
     
     async def _update_values(self) -> None:
@@ -96,10 +99,13 @@ class OpcUaSimulator(BaseSimulator):
         for sensor_id, state in self.sensor_states.items():
             if sensor_id in self._nodes:
                 node = self._nodes[sensor_id]
+                ua_type = self._ua_types[sensor_id]
                 value = self._convert_value(state.current_value, state.sensor.data_type)
                 
                 try:
-                    await node.write_value(value)
+                    # Použít ua.Variant s explicitním typem pro správný zápis
+                    variant = ua.Variant(value, ua_type)
+                    await node.write_value(variant)
                 except Exception as e:
                     logger.error(f"Chyba při zápisu hodnoty {state.sensor.name}: {e}")
     
