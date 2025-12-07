@@ -10,4 +10,5 @@ wheels/
 .venv
 
 File-Help/
+File-Help/Prompt.txt
 data/config.sqlite
