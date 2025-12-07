@@ -1,6 +1,6 @@
 Jistě! Níže je **plnohodnotný, detailní prompt pro vývoj simulátoru PLC strojů**, který můžeš použít jako specifikaci pro sebe, tým nebo i pro AI asistenta (např. při generování kódu). Prompt zahrnuje cíle, technologický stack, architektonické požadavky, uživatelské scénáře a omezení.
 
----
+--- 
 
 ### 🧠 **Prompt: Vývoj webového simulátoru průmyslových PLC strojů pro Industry 4.0**
 
