@@ -10,7 +10,8 @@ from typing import Dict, Optional, List
 
 from pymodbus.datastore import (
     ModbusServerContext,
-    ModbusSimulatorContext,
+    ModbusDeviceContext,
+    ModbusSequentialDataBlock,
 )
 from pymodbus.server import ModbusTcpServer
 
@@ -35,7 +36,7 @@ class ModbusTcpSimulator(BaseSimulator):
     def __init__(self, machine: Machine, sensors: List[Sensor]):
         super().__init__(machine, sensors)
         self._server: Optional[ModbusTcpServer] = None
-        self._context: Optional[ModbusSimulatorContext] = None
+        self._context: Optional[ModbusDeviceContext] = None
         self._register_map: Dict[int, tuple] = {}  # sensor_id -> (start_addr, num_registers)
         self._current_address = 0
     
@@ -75,14 +76,22 @@ class ModbusTcpSimulator(BaseSimulator):
     async def _start_server(self) -> None:
         """Spustí Modbus TCP server"""
         # Vypočítat mapování registrů
-        self._calculate_register_map()
+        total_registers = self._calculate_register_map()
         
-        # Vytvořit simulator context s výchozími hodnotami
-        self._context = ModbusSimulatorContext()
+        # Minimálně 100 registrů pro každý typ
+        block_size = max(100, total_registers + 10)
+        
+        # Vytvořit datové bloky pro všechny typy registrů
+        self._context = ModbusDeviceContext(
+            di=ModbusSequentialDataBlock(0, [0] * block_size),  # Discrete Inputs
+            co=ModbusSequentialDataBlock(0, [0] * block_size),  # Coils
+            hr=ModbusSequentialDataBlock(0, [0] * block_size),  # Holding Registers
+            ir=ModbusSequentialDataBlock(0, [0] * block_size),  # Input Registers
+        )
         
         # Server context
         server_context = ModbusServerContext(
-            slaves=self._context,
+            devices=self._context,
             single=True,
         )
         
